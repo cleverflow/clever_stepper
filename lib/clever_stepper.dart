@@ -804,7 +804,7 @@ class _TrianglePainter extends CustomPainter {
 }
 
 /// A builder that creates a widget given the two callbacks `onStepContinue` and
-/// `onStepCancel`.
+/// `onStepCancel` and gives `stepIndex`, `stepState`, and `isStepActive`.
 ///
 /// Used by [CleverStepper.controlsBuilder].
 ///
