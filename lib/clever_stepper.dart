@@ -70,12 +70,15 @@ const double _kTriangleHeight =
 ///  * <https://material.io/archive/guidelines/components/steppers.html>
 @immutable
 class CleverStep {
+  final Widget? trailing;
+
   /// Creates a step for a [CleverStepper].
   ///
   /// The [title], [content], and [state] arguments must not be null.
   const CleverStep({
     required this.title,
     this.subtitle,
+    this.trailing,
     required this.content,
     this.state = CleverStepState.indexed,
     this.isActive = false,
@@ -377,8 +380,8 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
           shape: BoxShape.circle,
         ),
         child: Center(
-          child: _buildCircleChild(
-              index, oldState && widget.steps[index].state == CleverStepState.error),
+          child: _buildCircleChild(index,
+              oldState && widget.steps[index].state == CleverStepState.error),
         ),
       ),
     );
@@ -401,8 +404,10 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
             child: Align(
               alignment: const Alignment(0.0, 0.8),
               // 0.8 looks better than the geometrical 0.33.
-              child: _buildCircleChild(index,
-                  oldState && widget.steps[index].state != CleverStepState.error),
+              child: _buildCircleChild(
+                  index,
+                  oldState &&
+                      widget.steps[index].state != CleverStepState.error),
             ),
           ),
         ),
@@ -550,33 +555,32 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
   }
 
   Widget _buildHeaderText(int index) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        AnimatedDefaultTextStyle(
-          style: _titleStyle(index),
-          duration: kThemeAnimationDuration,
-          curve: Curves.fastOutSlowIn,
-          child: widget.steps[index].title,
-        ),
-        if (widget.steps[index].subtitle != null)
-          Container(
-            margin: const EdgeInsets.only(top: 2.0),
-            child: AnimatedDefaultTextStyle(
-              style: _subtitleStyle(index),
-              duration: kThemeAnimationDuration,
-              curve: Curves.fastOutSlowIn,
-              child: widget.steps[index].subtitle!,
-            ),
-          ),
-      ],
+    return ListTile(
+      title: AnimatedDefaultTextStyle(
+        style: _titleStyle(index),
+        duration: kThemeAnimationDuration,
+        curve: Curves.fastOutSlowIn,
+        child: widget.steps[index].title,
+      ),
+      subtitle: (widget.steps[index].subtitle != null)
+          ? Container(
+              margin: const EdgeInsets.only(top: 2.0),
+              child: AnimatedDefaultTextStyle(
+                style: _subtitleStyle(index),
+                duration: kThemeAnimationDuration,
+                curve: Curves.fastOutSlowIn,
+                child: widget.steps[index].subtitle!,
+              ))
+          : SizedBox.shrink(),
+      trailing: (widget.steps[index].subtitle != null)
+          ? widget.steps[index].trailing!
+          : SizedBox.shrink(),
     );
   }
 
   Widget _buildVerticalHeader(int index) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24.0),
+      margin: const EdgeInsets.only(left: 24.0),
       child: Row(
         children: <Widget>[
           Column(
@@ -669,7 +673,8 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
                         widget.onStepTapped?.call(i);
                       }
                     : null,
-                canRequestFocus: widget.steps[i].state != CleverStepState.disabled,
+                canRequestFocus:
+                    widget.steps[i].state != CleverStepState.disabled,
                 child: _buildVerticalHeader(i),
               ),
               _buildVerticalBody(i),
