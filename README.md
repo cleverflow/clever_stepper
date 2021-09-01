@@ -13,5 +13,6 @@ Apart from the regular niceties of [Stepper](https://api.flutter.dev/flutter/mat
 |----------------|-------------------------------|-----------------------------|
 |`stepIndex`| int        |Step's index        |
 |`stepState`          |CleverStepState           |CleverStepState for the step           |
-|`isStepActive`          |bool|Whether or not the step is active.|
+|`isStepActive`          |bool|Whether or not the step is active|
+|`trailing`          |Widget|Add a trailing widget to the step|
 
