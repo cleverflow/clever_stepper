@@ -175,6 +175,7 @@ class CleverStepper extends StatefulWidget {
     this.type = CleverStepperType.vertical,
     this.currentStep = 0,
     this.onStepTapped,
+    this.onStepLongPressed,
     this.onStepContinue,
     this.onStepCancel,
     this.controlsBuilder,
@@ -207,6 +208,10 @@ class CleverStepper extends StatefulWidget {
   /// The callback called when a step is tapped, with its index passed as
   /// an argument.
   final ValueChanged<int>? onStepTapped;
+
+  /// The callback called when a step is long pressed, with its index passed as
+  /// an argument.
+  final ValueChanged<int>? onStepLongPressed;
 
   /// The callback called when the 'continue' button is tapped.
   ///
@@ -660,6 +665,19 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
             key: _keys[i],
             children: <Widget>[
               InkWell(
+                onLongPress: widget.steps[i].state != CleverStepState.disabled
+                    ? () {
+                        // In the vertical case we need to scroll to the newly tapped
+                        // step.
+                        Scrollable.ensureVisible(
+                          _keys[i].currentContext!,
+                          curve: Curves.fastOutSlowIn,
+                          duration: kThemeAnimationDuration,
+                        );
+
+                        widget.onStepLongPressed?.call(i);
+                      }
+                    : null,
                 onTap: widget.steps[i].state != CleverStepState.disabled
                     ? () {
                         // In the vertical case we need to scroll to the newly tapped
@@ -691,6 +709,11 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
           onTap: widget.steps[i].state != CleverStepState.disabled
               ? () {
                   widget.onStepTapped?.call(i);
+                }
+              : null,
+          onLongPress: widget.steps[i].state != CleverStepState.disabled
+              ? () {
+                  widget.onStepLongPressed?.call(i);
                 }
               : null,
           canRequestFocus: widget.steps[i].state != CleverStepState.disabled,

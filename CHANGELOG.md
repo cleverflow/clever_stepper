@@ -1,12 +1,13 @@
-## 0.0.1
+## Unreleased
+### Added
+- Callback for long press on a step
 
-* Initial Release
+## 0.0.1
+- Initial Release
 
 ## 0.0.2
-
-* Remove installation instructions from README as it's redundant
+- Remove installation instructions from README as it's redundant
 
 
 ## 0.0.3
-
-* Add trailing property which adds a trailing widget in each step
+- Add trailing property which adds a trailing widget in each step
