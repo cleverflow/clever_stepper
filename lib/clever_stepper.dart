@@ -168,18 +168,19 @@ class CleverStepper extends StatefulWidget {
   /// new one.
   ///
   /// The [steps], [type], and [currentStep] arguments must not be null.
-  const CleverStepper({
-    Key? key,
-    required this.steps,
-    this.physics,
-    this.type = CleverStepperType.vertical,
-    this.currentStep = 0,
-    this.onStepTapped,
-    this.onStepLongPressed,
-    this.onStepContinue,
-    this.onStepCancel,
-    this.controlsBuilder,
-  })  : assert(0 <= currentStep && currentStep < steps.length),
+  const CleverStepper(
+      {Key? key,
+      required this.steps,
+      this.physics,
+      this.type = CleverStepperType.vertical,
+      this.currentStep = 0,
+      this.onStepTapped,
+      this.onStepLongPressed,
+      this.onStepContinue,
+      this.onStepCancel,
+      this.controlsBuilder,
+      this.activeCircleColor = Colors.green})
+      : assert(0 <= currentStep && currentStep < steps.length),
         super(key: key);
 
   /// The steps of the stepper whose titles, subtitles, icons always get shown.
@@ -275,6 +276,8 @@ class CleverStepper extends StatefulWidget {
   /// {@end-tool}
   final CleverControlsWidgetBuilder? controlsBuilder;
 
+  final Color activeCircleColor;
+
   @override
   State<CleverStepper> createState() => _StepperState();
 }
@@ -359,17 +362,13 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
   }
 
   Color _circleColor(int index) {
-    if (!_isDark()) {
-      return widget.steps[index].isActive ||
-              widget.steps[index].state == CleverStepState.complete
-          ? Colors.green
-          : Colors.grey;
-    } else {
-      return widget.steps[index].isActive ||
-              widget.steps[index].state == CleverStepState.complete
-          ? Colors.green
-          : Colors.grey;
-    }
+    // TODO: Support different styles based on brightness [_isDark()]
+    if (widget.steps[index].isActive) {
+      return widget.activeCircleColor;
+    } else if (widget.steps[index].state == CleverStepState.complete) {
+      return Colors.green;
+    } else
+      return Colors.grey;
   }
 
   Widget _buildCircle(int index, bool oldState) {

@@ -1,6 +1,6 @@
-## 0.1.0 - 2021-10-10
+## 0.1.1 - 2021-10-14
 ### Added
-- Callback for long press on a step
+- Support to define active color
 
 ## 0.0.3 - 2021-09-01
 ### Added
@@ -13,5 +13,3 @@
 ## 0.0.1 - 2021-07-16
 ### Added
 - Initial Release
-
-
