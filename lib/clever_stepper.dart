@@ -217,12 +217,12 @@ class CleverStepper extends StatefulWidget {
   /// The callback called when the 'continue' button is tapped.
   ///
   /// If null, the 'continue' button will be disabled.
-  final VoidCallback? onStepContinue;
+  final Function({dynamic value})? onStepContinue;
 
   /// The callback called when the 'cancel' button is tapped.
   ///
   /// If null, the 'cancel' button will be disabled.
-  final VoidCallback? onStepCancel;
+  final Function({dynamic value})? onStepCancel;
 
   /// The callback for creating custom controls.
   ///
@@ -478,7 +478,7 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
           // version of this widget.
           children: <Widget>[
             TextButton(
-              onPressed: widget.onStepContinue,
+              onPressed: () => widget.onStepContinue,
               style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.resolveWith<Color?>(
                     (Set<MaterialState> states) {
@@ -503,7 +503,7 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
             Container(
               margin: const EdgeInsetsDirectional.only(start: 8.0),
               child: TextButton(
-                onPressed: widget.onStepCancel,
+                onPressed: () => widget.onStepCancel,
                 style: TextButton.styleFrom(
                   primary: cancelColor,
                   padding: buttonPadding,
@@ -842,5 +842,5 @@ typedef CleverControlsWidgetBuilder = Widget Function(BuildContext context,
     {int stepIndex,
     CleverStepState stepState,
     bool isStepActive,
-    VoidCallback? onStepContinue,
-    VoidCallback? onStepCancel});
+    Function({dynamic value})? onStepContinue,
+    Function({dynamic value})? onStepCancel});

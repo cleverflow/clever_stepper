@@ -1,6 +1,10 @@
+## 0.1.2 - 2021-10-14
+### Added
+- Support to pass value to onStepContinue and onStepCancel
+
 ## 0.1.1 - 2021-10-14
 ### Added
-- Support to define active color
+- Support to define active circle color
 
 ## 0.0.3 - 2021-09-01
 ### Added
