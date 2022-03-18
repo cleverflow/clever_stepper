@@ -98,7 +98,7 @@ class CleverStep {
   /// Below the content, every step has a 'continue' and 'cancel' button.
   final Widget content;
 
-  /// The state of the step which determines the styling of its components
+  /// The state of the step which determines the styling of its components.dart
   /// and whether steps are interactive.
   final CleverStepState state;
 
@@ -179,6 +179,7 @@ class CleverStepper extends StatefulWidget {
       this.onStepContinue,
       this.onStepCancel,
       this.controlsBuilder,
+      this.showTwoPane = false,
       this.activeCircleColor = Colors.green})
       : assert(0 <= currentStep && currentStep < steps.length),
         super(key: key);
@@ -277,6 +278,9 @@ class CleverStepper extends StatefulWidget {
   final CleverControlsWidgetBuilder? controlsBuilder;
 
   final Color activeCircleColor;
+
+  // Whether or not show the UI in two panes.
+  final bool showTwoPane;
 
   @override
   State<CleverStepper> createState() => _StepperState();
@@ -608,56 +612,40 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
   }
 
   Widget _buildVerticalBody(int index) {
-    return Stack(
-      children: <Widget>[
-        PositionedDirectional(
-          start: 24.0,
-          top: 0.0,
-          bottom: 0.0,
-          child: SizedBox(
-            width: 24.0,
-            child: Center(
-              child: SizedBox(
-                width: _isLast(index) ? 0.0 : 1.0,
-                child: Container(
-                  color: Colors.grey.shade400,
-                ),
-              ),
-            ),
-          ),
+    return AnimatedCrossFade(
+      firstChild: Container(height: 0.0),
+      secondChild: Container(
+        margin: const EdgeInsetsDirectional.only(
+          start: 16.0,
+          end: 16.0,
         ),
-        AnimatedCrossFade(
-          firstChild: Container(height: 0.0),
-          secondChild: Container(
-            margin: const EdgeInsetsDirectional.only(
-              start: 60.0,
-              end: 24.0,
-              bottom: 24.0,
-            ),
-            child: Column(
-              children: <Widget>[
-                widget.steps[index].content,
-                _buildVerticalControls(index: index),
-              ],
-            ),
-          ),
-          firstCurve: const Interval(0.0, 0.6, curve: Curves.fastOutSlowIn),
-          secondCurve: const Interval(0.4, 1.0, curve: Curves.fastOutSlowIn),
-          sizeCurve: Curves.fastOutSlowIn,
-          crossFadeState: _isCurrent(index)
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
-          duration: kThemeAnimationDuration,
+        child: Column(
+          children: <Widget>[
+            widget.steps[index].content,
+            _buildVerticalControls(index: index),
+          ],
         ),
-      ],
+      ),
+      firstCurve: const Interval(0.0, 0.6, curve: Curves.fastOutSlowIn),
+      secondCurve: const Interval(0.4, 1.0, curve: Curves.fastOutSlowIn),
+      sizeCurve: Curves.fastOutSlowIn,
+      crossFadeState: _isCurrent(index)
+          ? CrossFadeState.showSecond
+          : CrossFadeState.showFirst,
+      duration: kThemeAnimationDuration,
     );
   }
 
   Widget _buildVertical() {
-    return ListView(
+    int activeStepIndex = widget.steps
+        .indexWhere((element) => element.state == CleverStepState.editing);
+
+    var activeStepContent = _buildVerticalBody(activeStepIndex);
+
+    var stepList = ListView(
       padding: EdgeInsets.zero,
       shrinkWrap: true,
-      physics: widget.physics,
+      physics: ClampingScrollPhysics(),
       children: <Widget>[
         for (int i = 0; i < widget.steps.length; i += 1)
           Column(
@@ -694,10 +682,26 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
                     widget.steps[i].state != CleverStepState.disabled,
                 child: _buildVerticalHeader(i),
               ),
-              _buildVerticalBody(i),
             ],
           ),
       ],
+    );
+    //
+    // if (true) {
+    //   return Row(
+    //     mainAxisAlignment: MainAxisAlignment.start,
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: [
+    //       SizedBox(
+    //           width: 400,
+    //           child: stepList),
+    //       Expanded(child: activeStepContent)
+    //     ],
+    //   );
+    // }
+
+    return Column(
+      children: [stepList, activeStepContent],
     );
   }
 
@@ -782,7 +786,7 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
           'Steppers must not be nested.\n'
           'The material specification advises that one should avoid embedding '
           'steppers within steppers. '
-          'https://material.io/archive/guidelines/components/steppers.html#steppers-usage',
+          'https://material.io/archive/guidelines/components.dart/steppers.html#steppers-usage',
         );
       return true;
     }());

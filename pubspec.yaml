@@ -1,6 +1,6 @@
 name: clever_stepper
 description: Modified version of Stepper from material library for additional features.
-version: 0.1.2
+version: 0.1.3
 homepage: https://github.com/cleverflow/clever_stepper
 
 environment:
