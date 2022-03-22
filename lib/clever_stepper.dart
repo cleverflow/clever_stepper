@@ -637,15 +637,15 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
   }
 
   Widget _buildVertical() {
-    int activeStepIndex = widget.steps
-        .indexWhere((element) => element.state == CleverStepState.editing);
+    // int activeStepIndex = widget.steps
+    //     .indexWhere((element) => element.state == CleverStepState.editing);
 
-    var activeStepContent = _buildVerticalBody(activeStepIndex);
+    var activeStepContent = _buildVerticalBody(widget.currentStep);
 
     var stepList = ListView(
       padding: EdgeInsets.zero,
       shrinkWrap: true,
-      physics: ClampingScrollPhysics(),
+      physics: const ClampingScrollPhysics(),
       children: <Widget>[
         for (int i = 0; i < widget.steps.length; i += 1)
           Column(
