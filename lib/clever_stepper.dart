@@ -622,7 +622,6 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
         child: Column(
           children: <Widget>[
             widget.steps[index].content,
-            _buildVerticalControls(index: index),
           ],
         ),
       ),
@@ -637,9 +636,6 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
   }
 
   Widget _buildVertical() {
-    // int activeStepIndex = widget.steps
-    //     .indexWhere((element) => element.state == CleverStepState.editing);
-
     var activeStepContent = _buildVerticalBody(widget.currentStep);
 
     var stepList = ListView(
@@ -682,24 +678,12 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
                     widget.steps[i].state != CleverStepState.disabled,
                 child: _buildVerticalHeader(i),
               ),
+              if (i == widget.currentStep)
+                Transform.scale(child: _buildVerticalControls(index: widget.currentStep), scale: 0.8,),
             ],
           ),
       ],
     );
-    //
-    // if (true) {
-    //   return Row(
-    //     mainAxisAlignment: MainAxisAlignment.start,
-    //     crossAxisAlignment: CrossAxisAlignment.start,
-    //     children: [
-    //       SizedBox(
-    //           width: 400,
-    //           child: stepList),
-    //       Expanded(child: activeStepContent)
-    //     ],
-    //   );
-    // }
-
     return Column(
       children: [stepList, activeStepContent],
     );
