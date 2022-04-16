@@ -180,7 +180,7 @@ class CleverStepper extends StatefulWidget {
       this.onStepCancel,
       this.controlsBuilder,
       this.showTwoPane = false,
-      this.activeCircleColor = Colors.green})
+      this.activeCircleColor = Colors.green, this.controller})
       : assert(0 <= currentStep && currentStep < steps.length),
         super(key: key);
 
@@ -279,6 +279,8 @@ class CleverStepper extends StatefulWidget {
 
   final Color activeCircleColor;
 
+  final CleverStepController? controller;
+
   // Whether or not show the UI in two panes.
   final bool showTwoPane;
 
@@ -297,7 +299,9 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
       widget.steps.length,
       (int i) => GlobalKey(),
     );
-
+    print('clever_stepper: initState');
+    print('controller: ${widget.controller}');
+    widget.controller?._bindState(this);
     for (int i = 0; i < widget.steps.length; i += 1)
       _oldStates[i] = widget.steps[i].state;
   }
@@ -679,7 +683,10 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
                 child: _buildVerticalHeader(i),
               ),
               if (i == widget.currentStep)
-                Transform.scale(child: _buildVerticalControls(index: widget.currentStep), scale: 0.8,),
+                Transform.scale(
+                  child: _buildVerticalControls(index: widget.currentStep),
+                  scale: 0.8,
+                ),
             ],
           ),
       ],
@@ -832,3 +839,30 @@ typedef CleverControlsWidgetBuilder = Widget Function(BuildContext context,
     bool isStepActive,
     Function({dynamic value})? onStepContinue,
     Function({dynamic value})? onStepCancel});
+
+/// controller that can call onStepContinue() and onStepCancel() outside of the controls widget
+class CleverStepController {
+  _StepperState? _stepperState;
+
+  void _bindState(_StepperState state) {
+    _stepperState = state;
+  }
+
+  void dispose() {
+    _stepperState = null;
+  }
+
+  void onStepContinue({dynamic value}) {
+    _stepperState?.widget.onStepContinue?.call(value: value);
+  }
+
+  void onStepCancel({dynamic value}) {
+    _stepperState?.widget.onStepCancel?.call(value: value);
+  }
+
+  int get currentStepIndex => _stepperState!.widget.currentStep;
+
+  CleverStepState getStepState(int index) {
+    return _stepperState!.widget.steps[index].state;
+  }
+}
