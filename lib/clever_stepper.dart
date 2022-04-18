@@ -852,6 +852,10 @@ class CleverStepController {
     _stepperState = null;
   }
 
+  bool get isMounted {
+    return _stepperState?.mounted == true;
+  }
+
   void onStepContinue({dynamic value}) {
     _stepperState?.widget.onStepContinue?.call(value: value);
   }
