@@ -168,21 +168,29 @@ class CleverStepper extends StatefulWidget {
   /// new one.
   ///
   /// The [steps], [type], and [currentStep] arguments must not be null.
-  const CleverStepper(
-      {Key? key,
-      required this.steps,
-      this.physics,
-      this.type = CleverStepperType.vertical,
-      this.currentStep = 0,
-      this.onStepTapped,
-      this.onStepLongPressed,
-      this.onStepContinue,
-      this.onStepCancel,
-      this.controlsBuilder,
-      this.showTwoPane = false,
-      this.activeCircleColor = Colors.green, this.controller})
-      : assert(0 <= currentStep && currentStep < steps.length),
+  const CleverStepper({
+    Key? key,
+    required this.steps,
+    this.physics,
+    this.type = CleverStepperType.vertical,
+    this.currentStep = 0,
+    this.onStepTapped,
+    this.onStepLongPressed,
+    this.onStepContinue,
+    this.onStepCancel,
+    this.controlsBuilder,
+    this.activeCircleColor = Colors.green,
+    this.controller,
+    this.stepColor,
+    this.stepIcon,
+  })  : assert(0 <= currentStep && currentStep < steps.length),
         super(key: key);
+
+  /// The color of step circle.
+  final Color? Function(CleverStepState state)? stepColor;
+
+  /// The icon of step circle (only for completed and editing).
+  final IconData? Function(CleverStepState state)? stepIcon;
 
   /// The steps of the stepper whose titles, subtitles, icons always get shown.
   ///
@@ -281,9 +289,6 @@ class CleverStepper extends StatefulWidget {
 
   final CleverStepController? controller;
 
-  // Whether or not show the UI in two panes.
-  final bool showTwoPane;
-
   @override
   State<CleverStepper> createState() => _StepperState();
 }
@@ -302,8 +307,9 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
     print('clever_stepper: initState');
     print('controller: ${widget.controller}');
     widget.controller?._bindState(this);
-    for (int i = 0; i < widget.steps.length; i += 1)
+    for (int i = 0; i < widget.steps.length; i += 1) {
       _oldStates[i] = widget.steps[i].state;
+    }
   }
 
   @override
@@ -311,8 +317,9 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
     assert(widget.steps.length == oldWidget.steps.length);
 
-    for (int i = 0; i < oldWidget.steps.length; i += 1)
+    for (int i = 0; i < oldWidget.steps.length; i += 1) {
       _oldStates[i] = oldWidget.steps[i].state;
+    }
   }
 
   bool _isFirst(int index) {
@@ -354,13 +361,13 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
         );
       case CleverStepState.editing:
         return Icon(
-          Icons.edit,
+          widget.stepIcon?.call(state) ?? Icons.edit,
           color: isDarkActive ? _kCircleActiveDark : _kCircleActiveLight,
           size: 18.0,
         );
       case CleverStepState.complete:
         return Icon(
-          Icons.check,
+          widget.stepIcon?.call(state) ?? Icons.check,
           color: isDarkActive ? _kCircleActiveDark : _kCircleActiveLight,
           size: 18.0,
         );
@@ -371,12 +378,17 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
 
   Color _circleColor(int index) {
     // TODO: Support different styles based on brightness [_isDark()]
+    var stepColor = widget.stepColor?.call(_oldStates[index]!);
+    if (stepColor != null) {
+      return stepColor;
+    }
     if (widget.steps[index].isActive) {
       return widget.activeCircleColor;
     } else if (widget.steps[index].state == CleverStepState.complete) {
       return Colors.green;
-    } else
+    } else {
       return Colors.grey;
+    }
   }
 
   Widget _buildCircle(int index, bool oldState) {
@@ -441,21 +453,23 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
         duration: kThemeAnimationDuration,
       );
     } else {
-      if (widget.steps[index].state != CleverStepState.error)
+      if (widget.steps[index].state != CleverStepState.error) {
         return _buildCircle(index, false);
-      else
+      } else {
         return _buildTriangle(index, false);
+      }
     }
   }
 
   Widget _buildVerticalControls({required int index}) {
-    if (widget.controlsBuilder != null)
+    if (widget.controlsBuilder != null) {
       return widget.controlsBuilder!(context,
           stepIndex: index,
           stepState: widget.steps[index].state,
           isStepActive: widget.steps[index].isActive,
           onStepContinue: widget.onStepContinue,
           onStepCancel: widget.onStepCancel);
+    }
 
     final Color cancelColor;
     switch (Theme.of(context).brightness) {
@@ -583,10 +597,10 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
                 curve: Curves.fastOutSlowIn,
                 child: widget.steps[index].subtitle!,
               ))
-          : SizedBox.shrink(),
+          : const SizedBox.shrink(),
       trailing: (widget.steps[index].subtitle != null)
           ? widget.steps[index].trailing!
-          : SizedBox.shrink(),
+          : const SizedBox.shrink(),
     );
   }
 
@@ -684,8 +698,8 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
               ),
               if (i == widget.currentStep)
                 Transform.scale(
-                  child: _buildVerticalControls(index: widget.currentStep),
                   scale: 0.8,
+                  child: _buildVerticalControls(index: widget.currentStep),
                 ),
             ],
           ),
@@ -772,13 +786,14 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
     assert(debugCheckHasMaterial(context));
     assert(debugCheckHasMaterialLocalizations(context));
     assert(() {
-      if (context.findAncestorWidgetOfExactType<CleverStepper>() != null)
+      if (context.findAncestorWidgetOfExactType<CleverStepper>() != null) {
         throw FlutterError(
           'Steppers must not be nested.\n'
           'The material specification advises that one should avoid embedding '
           'steppers within steppers. '
           'https://material.io/archive/guidelines/components.dart/steppers.html#steppers-usage',
         );
+      }
       return true;
     }());
     switch (widget.type) {
