@@ -182,9 +182,12 @@ class CleverStepper extends StatefulWidget {
     this.activeCircleColor = Colors.green,
     this.controller,
     this.stepColor,
-    this.stepIcon,
+    this.stepIcon, this.stepBuilder,
   })  : assert(0 <= currentStep && currentStep < steps.length),
         super(key: key);
+
+  /// builder for wrapping the [CleverStep] widget.
+  final Widget Function(BuildContext context, int index, Widget child)? stepBuilder;
 
   /// The color of step circle.
   final Color? Function(CleverStepState state)? stepColor;
@@ -662,52 +665,56 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
       physics: const ClampingScrollPhysics(),
       children: <Widget>[
         for (int i = 0; i < widget.steps.length; i += 1)
-          Column(
-            key: _keys[i],
-            children: <Widget>[
-              InkWell(
-                onLongPress: widget.steps[i].state != CleverStepState.disabled
-                    ? () {
-                        // In the vertical case we need to scroll to the newly tapped
-                        // step.
-                        Scrollable.ensureVisible(
-                          _keys[i].currentContext!,
-                          curve: Curves.fastOutSlowIn,
-                          duration: kThemeAnimationDuration,
-                        );
-
-                        widget.onStepLongPressed?.call(i);
-                      }
-                    : null,
-                onTap: widget.steps[i].state != CleverStepState.disabled
-                    ? () {
-                        // In the vertical case we need to scroll to the newly tapped
-                        // step.
-                        Scrollable.ensureVisible(
-                          _keys[i].currentContext!,
-                          curve: Curves.fastOutSlowIn,
-                          duration: kThemeAnimationDuration,
-                        );
-
-                        widget.onStepTapped?.call(i);
-                      }
-                    : null,
-                canRequestFocus:
-                    widget.steps[i].state != CleverStepState.disabled,
-                child: _buildVerticalHeader(i),
-              ),
-              if (i == widget.currentStep)
-                Transform.scale(
-                  scale: 0.8,
-                  child: _buildVerticalControls(index: widget.currentStep),
-                ),
-            ],
-          ),
+          widget.stepBuilder?.call(context, i, _buildStep(i)) ?? _buildStep(i),
       ],
     );
     return Column(
       children: [stepList, activeStepContent],
     );
+  }
+
+  Column _buildStep(int i) {
+    return Column(
+          key: _keys[i],
+          children: <Widget>[
+            InkWell(
+              onLongPress: widget.steps[i].state != CleverStepState.disabled
+                  ? () {
+                      // In the vertical case we need to scroll to the newly tapped
+                      // step.
+                      Scrollable.ensureVisible(
+                        _keys[i].currentContext!,
+                        curve: Curves.fastOutSlowIn,
+                        duration: kThemeAnimationDuration,
+                      );
+
+                      widget.onStepLongPressed?.call(i);
+                    }
+                  : null,
+              onTap: widget.steps[i].state != CleverStepState.disabled
+                  ? () {
+                      // In the vertical case we need to scroll to the newly tapped
+                      // step.
+                      Scrollable.ensureVisible(
+                        _keys[i].currentContext!,
+                        curve: Curves.fastOutSlowIn,
+                        duration: kThemeAnimationDuration,
+                      );
+
+                      widget.onStepTapped?.call(i);
+                    }
+                  : null,
+              canRequestFocus:
+                  widget.steps[i].state != CleverStepState.disabled,
+              child: _buildVerticalHeader(i),
+            ),
+            if (i == widget.currentStep)
+              Transform.scale(
+                scale: 0.8,
+                child: _buildVerticalControls(index: widget.currentStep),
+              ),
+          ],
+        );
   }
 
   Widget _buildHorizontal() {
