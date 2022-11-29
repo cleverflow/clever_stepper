@@ -182,18 +182,27 @@ class CleverStepper extends StatefulWidget {
     this.activeCircleColor = Colors.green,
     this.controller,
     this.stepColor,
-    this.stepIcon, this.stepBuilder,
+    this.stepIcon,
+    this.stepIconBuilder,
+    this.stepBuilder,
   })  : assert(0 <= currentStep && currentStep < steps.length),
+        assert(stepIcon == null || stepIconBuilder == null,
+            'Cannot provide both stepIcon and stepIconBuilder'),
         super(key: key);
 
   /// builder for wrapping the [CleverStep] widget.
-  final Widget Function(BuildContext context, int index, Widget child)? stepBuilder;
+  final Widget Function(BuildContext context, int index, Widget child)?
+      stepBuilder;
 
   /// The color of step circle.
   final Color? Function(CleverStepState state)? stepColor;
 
   /// The icon of step circle (only for completed and editing).
   final IconData? Function(CleverStepState state)? stepIcon;
+
+  /// function to build the step icon, it can be used to give it a widget instead
+  /// of an icon.
+  final Widget Function(CleverStepState state, Color color)? stepIconBuilder;
 
   /// The steps of the stepper whose titles, subtitles, icons always get shown.
   ///
@@ -307,8 +316,6 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
       widget.steps.length,
       (int i) => GlobalKey(),
     );
-    print('clever_stepper: initState');
-    print('controller: ${widget.controller}');
     widget.controller?._bindState(this);
     for (int i = 0; i < widget.steps.length; i += 1) {
       _oldStates[i] = widget.steps[i].state;
@@ -356,26 +363,37 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
     switch (state) {
       case CleverStepState.indexed:
       case CleverStepState.disabled:
-        return Text(
-          '${index + 1}',
-          style: isDarkActive
-              ? _kStepStyle.copyWith(color: Colors.black87)
-              : _kStepStyle,
-        );
+        return widget.stepIconBuilder?.call(
+                state,
+                (isDarkActive
+                        ? _kStepStyle.copyWith(color: Colors.black87)
+                        : _kStepStyle)
+                    .color!) ??
+            Text(
+              '${index + 1}',
+              style: isDarkActive
+                  ? _kStepStyle.copyWith(color: Colors.black87)
+                  : _kStepStyle,
+            );
       case CleverStepState.editing:
-        return Icon(
-          widget.stepIcon?.call(state) ?? Icons.edit,
-          color: isDarkActive ? _kCircleActiveDark : _kCircleActiveLight,
-          size: 18.0,
-        );
+        return widget.stepIconBuilder?.call(state,
+                isDarkActive ? _kCircleActiveDark : _kCircleActiveLight) ??
+            Icon(
+              widget.stepIcon?.call(state) ?? Icons.edit,
+              color: isDarkActive ? _kCircleActiveDark : _kCircleActiveLight,
+              size: 18.0,
+            );
       case CleverStepState.complete:
-        return Icon(
-          widget.stepIcon?.call(state) ?? Icons.check,
-          color: isDarkActive ? _kCircleActiveDark : _kCircleActiveLight,
-          size: 18.0,
-        );
+        return widget.stepIconBuilder?.call(state,
+                isDarkActive ? _kCircleActiveDark : _kCircleActiveLight) ??
+            Icon(
+              widget.stepIcon?.call(state) ?? Icons.check,
+              color: isDarkActive ? _kCircleActiveDark : _kCircleActiveLight,
+              size: 18.0,
+            );
       case CleverStepState.error:
-        return const Text('!', style: _kStepStyle);
+        return widget.stepIconBuilder?.call(state, _kStepStyle.color!) ??
+            Text('!', style: _kStepStyle);
     }
   }
 
@@ -675,46 +693,45 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
 
   Column _buildStep(int i) {
     return Column(
-          key: _keys[i],
-          children: <Widget>[
-            InkWell(
-              onLongPress: widget.steps[i].state != CleverStepState.disabled
-                  ? () {
-                      // In the vertical case we need to scroll to the newly tapped
-                      // step.
-                      Scrollable.ensureVisible(
-                        _keys[i].currentContext!,
-                        curve: Curves.fastOutSlowIn,
-                        duration: kThemeAnimationDuration,
-                      );
+      key: _keys[i],
+      children: <Widget>[
+        InkWell(
+          onLongPress: widget.steps[i].state != CleverStepState.disabled
+              ? () {
+                  // In the vertical case we need to scroll to the newly tapped
+                  // step.
+                  Scrollable.ensureVisible(
+                    _keys[i].currentContext!,
+                    curve: Curves.fastOutSlowIn,
+                    duration: kThemeAnimationDuration,
+                  );
 
-                      widget.onStepLongPressed?.call(i);
-                    }
-                  : null,
-              onTap: widget.steps[i].state != CleverStepState.disabled
-                  ? () {
-                      // In the vertical case we need to scroll to the newly tapped
-                      // step.
-                      Scrollable.ensureVisible(
-                        _keys[i].currentContext!,
-                        curve: Curves.fastOutSlowIn,
-                        duration: kThemeAnimationDuration,
-                      );
+                  widget.onStepLongPressed?.call(i);
+                }
+              : null,
+          onTap: widget.steps[i].state != CleverStepState.disabled
+              ? () {
+                  // In the vertical case we need to scroll to the newly tapped
+                  // step.
+                  Scrollable.ensureVisible(
+                    _keys[i].currentContext!,
+                    curve: Curves.fastOutSlowIn,
+                    duration: kThemeAnimationDuration,
+                  );
 
-                      widget.onStepTapped?.call(i);
-                    }
-                  : null,
-              canRequestFocus:
-                  widget.steps[i].state != CleverStepState.disabled,
-              child: _buildVerticalHeader(i),
-            ),
-            if (i == widget.currentStep)
-              Transform.scale(
-                scale: 0.8,
-                child: _buildVerticalControls(index: widget.currentStep),
-              ),
-          ],
-        );
+                  widget.onStepTapped?.call(i);
+                }
+              : null,
+          canRequestFocus: widget.steps[i].state != CleverStepState.disabled,
+          child: _buildVerticalHeader(i),
+        ),
+        if (i == widget.currentStep)
+          Transform.scale(
+            scale: 0.8,
+            child: _buildVerticalControls(index: widget.currentStep),
+          ),
+      ],
+    );
   }
 
   Widget _buildHorizontal() {
