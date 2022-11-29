@@ -202,7 +202,8 @@ class CleverStepper extends StatefulWidget {
 
   /// function to build the step icon, it can be used to give it a widget instead
   /// of an icon.
-  final Widget Function(CleverStepState state, Color color)? stepIconBuilder;
+  final Widget Function(CleverStepState state, Color color, int index)?
+      stepIconBuilder;
 
   /// The steps of the stepper whose titles, subtitles, icons always get shown.
   ///
@@ -368,7 +369,8 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
                 (isDarkActive
                         ? _kStepStyle.copyWith(color: Colors.black87)
                         : _kStepStyle)
-                    .color!) ??
+                    .color!,
+                index) ??
             Text(
               '${index + 1}',
               style: isDarkActive
@@ -376,23 +378,27 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
                   : _kStepStyle,
             );
       case CleverStepState.editing:
-        return widget.stepIconBuilder?.call(state,
-                isDarkActive ? _kCircleActiveDark : _kCircleActiveLight) ??
+        return widget.stepIconBuilder?.call(
+                state,
+                isDarkActive ? _kCircleActiveDark : _kCircleActiveLight,
+                index) ??
             Icon(
               widget.stepIcon?.call(state) ?? Icons.edit,
               color: isDarkActive ? _kCircleActiveDark : _kCircleActiveLight,
               size: 18.0,
             );
       case CleverStepState.complete:
-        return widget.stepIconBuilder?.call(state,
-                isDarkActive ? _kCircleActiveDark : _kCircleActiveLight) ??
+        return widget.stepIconBuilder?.call(
+                state,
+                isDarkActive ? _kCircleActiveDark : _kCircleActiveLight,
+                index) ??
             Icon(
               widget.stepIcon?.call(state) ?? Icons.check,
               color: isDarkActive ? _kCircleActiveDark : _kCircleActiveLight,
               size: 18.0,
             );
       case CleverStepState.error:
-        return widget.stepIconBuilder?.call(state, _kStepStyle.color!) ??
+        return widget.stepIconBuilder?.call(state, _kStepStyle.color!, index) ??
             Text('!', style: _kStepStyle);
     }
   }
