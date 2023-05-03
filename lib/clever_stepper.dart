@@ -405,7 +405,7 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
 
   Color _circleColor(int index) {
     // TODO: Support different styles based on brightness [_isDark()]
-    var stepColor = widget.stepColor?.call(_oldStates[index]!);
+    final stepColor = widget.stepColor?.call(widget.steps[index].state);
     if (stepColor != null) {
       return stepColor;
     }
@@ -554,7 +554,7 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
               child: TextButton(
                 onPressed: () => widget.onStepCancel,
                 style: TextButton.styleFrom(
-                  primary: cancelColor,
+                  foregroundColor: cancelColor,
                   padding: buttonPadding,
                   shape: buttonShape,
                 ),
