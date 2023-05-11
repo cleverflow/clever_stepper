@@ -798,7 +798,6 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(24.0),
             children: <Widget>[
               AnimatedSize(
-                vsync: this,
                 curve: Curves.fastOutSlowIn,
                 duration: kThemeAnimationDuration,
                 child: widget.steps[widget.currentStep].content,
