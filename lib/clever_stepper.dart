@@ -1,5 +1,5 @@
 library clever_stepper;
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 // Copyright 2014 The Flutter Authors. All rights reserved.
