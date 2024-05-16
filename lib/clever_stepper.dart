@@ -529,23 +529,23 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
             TextButton(
               onPressed: () => widget.onStepContinue,
               style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return states.contains(MaterialState.disabled)
+                foregroundColor: WidgetStateProperty.resolveWith<Color?>(
+                    (Set<WidgetState> states) {
+                  return states.contains(WidgetState.disabled)
                       ? null
                       : (_isDark()
                           ? colorScheme.onSurface
                           : colorScheme.onPrimary);
                 }),
-                backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return _isDark() || states.contains(MaterialState.disabled)
+                backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+                    (Set<WidgetState> states) {
+                  return _isDark() || states.contains(WidgetState.disabled)
                       ? null
                       : colorScheme.primary;
                 }),
-                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
                     buttonPadding),
-                shape: MaterialStateProperty.all<OutlinedBorder>(buttonShape),
+                shape: WidgetStateProperty.all<OutlinedBorder>(buttonShape),
               ),
               child: Text(localizations.continueButtonLabel),
             ),
@@ -575,13 +575,13 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
       case CleverStepState.indexed:
       case CleverStepState.editing:
       case CleverStepState.complete:
-        return textTheme.bodyText1!;
+        return textTheme.bodyLarge!;
       case CleverStepState.disabled:
-        return textTheme.bodyText1!.copyWith(
+        return textTheme.bodyLarge!.copyWith(
           color: _isDark() ? _kDisabledDark : _kDisabledLight,
         );
       case CleverStepState.error:
-        return textTheme.bodyText1!.copyWith(
+        return textTheme.bodyLarge!.copyWith(
           color: _isDark() ? _kErrorDark : _kErrorLight,
         );
     }
@@ -595,13 +595,13 @@ class _StepperState extends State<CleverStepper> with TickerProviderStateMixin {
       case CleverStepState.indexed:
       case CleverStepState.editing:
       case CleverStepState.complete:
-        return textTheme.caption!;
+        return textTheme.bodySmall!;
       case CleverStepState.disabled:
-        return textTheme.caption!.copyWith(
+        return textTheme.bodySmall!.copyWith(
           color: _isDark() ? _kDisabledDark : _kDisabledLight,
         );
       case CleverStepState.error:
-        return textTheme.caption!.copyWith(
+        return textTheme.bodySmall!.copyWith(
           color: _isDark() ? _kErrorDark : _kErrorLight,
         );
     }
